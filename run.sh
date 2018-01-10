@@ -3,7 +3,7 @@
 set -e -x
 
 if [ -z ${PEER+x} ] ; then
-	echo 'No peer set. Please provide peer as environment variabel `PEER`.'
+	echo 'No peer set. Please provide peer as environment variable `PEER`.'
 	exit 1
 fi
 
