@@ -7,7 +7,13 @@ if [ -z ${PEER+x} ] ; then
 	exit 1
 fi
 
-peer=${PEER}
+#peer=${PEER}
+peer=$(nslkp "$PEER")
+if [ "$?" -ne "0" ]; then
+	echo "No such host or invalid IP address. Please provide valid hostname or IP address as environment variable `PEER`.'"
+	exit 1
+fi
+
 vxlanid=${VXLANID:-100}
 dev=${DEV:-$(ip r | grep default | cut  -d' ' -f 5)}
 ifname=${IFNAME:-vx${vxlanid}}
