@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e -x
+set -e -x 
 
 if [ -z ${PEER+x} ] ; then
 	echo 'No peer set. Please provide peer as environment variable `PEER`.'
@@ -13,8 +13,35 @@ dev=${DEV:-$(ip r | grep default | cut  -d' ' -f 5)}
 ifname=${IFNAME:-vx${vxlanid}}
 bridge=${BRIDGE_IFNAME:-br0}
 
+_lookupip() {
+    set +e
+    ipcalc -ns $1 > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        set -e
+        echo $1
+    else
+        lookup=`nslookup "$1" 2> /dev/null`
+        if [ $? -ne 0 ]; then
+            return 2
+        fi
+        set -e
+        echo "$lookup" | grep "Address 1" | cut -f 3 -d " "
+    fi
+    return 0
+}
+
+echo "peer is ${peer}"
+set +e
+peerip=`_lookupip ${peer}`
+if [ $? -eq 2 ]; then
+  echo "FQDN could not be looked up"   
+  exit 1
+fi
+set -e
+echo "IP of peer is ${peerip}"
+
 ip link delete $ifname 2>/dev/null || true
-ip link add name $ifname type vxlan id ${vxlanid} dev ${dev} remote ${peer} dstport 4789
+ip link add name $ifname type vxlan id ${vxlanid} dev ${dev} remote ${peerip} dstport 4789
 ip link set $ifname up
 
 # bridge interface
