@@ -20,3 +20,6 @@ The following environment variables are used to configure the VXLAN connector:
   (e.g. `vx100`)
 - `BRIDGED_IFACES`: A space-separated list of interface names to attach to the
   bridge in addition to the vxlan interface.
+- `STATIC_ROUTES`: if set, static routes will be added to the interface (or bridge).
+  The routes have to be defined in a comma seperated list.
+  Eg.: `192.168.0.0/24,10.10.0.0/16`

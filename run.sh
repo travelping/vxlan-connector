@@ -30,6 +30,21 @@ _lookupip() {
     return 0
 }
 
+_set_static_routes() {
+    if [ -n "$STATIC_ROUTES" ]; then
+        # add routes through the VTI interface
+        IFS=","
+        if [ ! -z ${BRIDGE+x} ] ; then
+            interface=${bridge}
+        else
+            interface=${ifname}
+        fi
+        for route in ${STATIC_ROUTES}; do
+            ip route add ${route} dev "${interface}" || true
+        done
+    fi 
+}
+
 echo "peer is ${peer}"
 set +e
 peerip=`_lookupip ${peer}`
@@ -65,6 +80,10 @@ else
 fi
 
 ip a
+
+_set_static_routes
+
+ip route
 
 echo "Going to infinite sleep ..."
 while true; do sleep 1d; done
