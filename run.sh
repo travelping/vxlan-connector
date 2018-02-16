@@ -40,7 +40,9 @@ _set_static_routes() {
             interface=${ifname}
         fi
         for route in ${STATIC_ROUTES}; do
-            ip route add ${route} dev "${interface}" || true
+            # subshell to reset IFS - otherwise ${route} is not split
+            # by words
+            ( unset IFS; ip route add ${route} dev ${interface} ) || true
         done
     fi 
 }
